@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Árbol Sintáctico</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<style>
+body { font-family: Arial; margin: 20px; }
+
+input, button {
+  padding: 8px;
+  font-size: 14px;
+}
+
+.node circle {
+  fill: steelblue;
+}
+
+.node text {
+  font-size: 12px;
+}
+
+.link {
+  fill: none;
+  stroke: #555;
+  stroke-width: 1.5px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Analizador de Gramática</h2>
+
+<input type="text" id="entrada" placeholder="Ej: 525Romano$">
+<button onclick="enviar()">Procesar</button>
+
+<p id="resultado"></p>
+
+<svg width="1000" height="600"></svg>
+
+<script>
+const svg = d3.select("svg").append("g")
+    .attr("transform", "translate(50,50)");
+
+const treeLayout = d3.tree().size([500, 800]);
+
+function enviar() {
+    const entrada = document.getElementById("entrada").value;
+
+    fetch("http://127.0.0.1:5000/parse", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ entrada })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (!data.ok) {
+            document.getElementById("resultado").innerText = data.error;
+            return;
+        }
+
+        document.getElementById("resultado").innerText = data.resultado.join(", ");
+
+        dibujarArbol(data.tree);
+    });
+}
+
+function dibujarArbol(data) {
+
+    svg.selectAll("*").remove();
+
+    const root = d3.hierarchy(data);
+    treeLayout(root);
+
+    // Links
+    svg.selectAll(".link")
+        .data(root.links())
+        .enter()
+        .append("path")
+        .attr("class", "link")
+        .attr("d", d3.linkHorizontal()
+            .x(d => d.y)
+            .y(d => d.x)
+        );
+
+    // Nodos
+    const node = svg.selectAll(".node")
+        .data(root.descendants())
+        .enter()
+        .append("g")
+        .attr("transform", d => `translate(${d.y},${d.x})`);
+
+    // Color por tipo
+    node.append("circle")
+        .attr("r", 6)
+        .attr("fill", d => d.data.type === "terminal" ? "#ff7f0e" : "#1f77b4");
+
+    // Texto
+    node.append("text")
+        .attr("dx", 10)
+        .attr("dy", 4)
+        .text(d => d.data.name);
+
+    // Tooltip
+    node.append("title")
+        .text(d => d.data.type);
+}
+</script>
+
+</body>
+</html>
