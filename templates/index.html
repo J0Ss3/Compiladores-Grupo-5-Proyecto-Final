@@ -2,115 +2,1113 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Árbol Sintáctico</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convertidor de Números — Grupo 5 | UNAH</title>
 <script src="https://d3js.org/d3.v7.min.js"></script>
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,700&display=swap" rel="stylesheet">
 <style>
-body { font-family: Arial; margin: 20px; }
-
-input, button {
-  padding: 8px;
-  font-size: 14px;
+/* ═══════════════════════════════════════════
+   INSTITUTIONAL BRAND TOKENS (UNAH)
+   Amarillo: #F5C720  |  Azul: #1D386E
+═══════════════════════════════════════════ */
+:root {
+  --azul-unah:     #1D386E;
+  --amarillo-unah: #F5C720;
+  --azul-claro:    #2A4A8A;
+  --azul-oscuro:   #122951;
+  --gris-neutral:  #2C3E50;
+  --gris-claro:    #ECF0F1;
+  --blanco:        #FFFFFF;
+  --negro:         #111111;
+  --beige-claro:   #FDFBF7;
+  --gris-borde:    #D4D9E2;
+  --verde-exito:   #2E7D32;
+  --rojo-error:    #C62828;
+  --font-futura: 'Futura Std', 'Futura', 'Century Gothic', 'Tw Cen MT', 'Trebuchet MS', 'Inter', sans-serif;
+  --font-mono:   'Courier New', 'Fira Code', monospace;
 }
 
-.node circle {
-  fill: steelblue;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-futura);
+  background: var(--beige-claro);
+  color: var(--negro);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
-.node text {
+/* HEADER con escudos */
+header {
+  background: var(--azul-unah);
+  border-bottom: 4px solid var(--amarillo-unah);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 36px;
+  flex-wrap: wrap;
+}
+
+.escudos-container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.escudo {
+  height: 50px;
+  width: auto;
+  background: white;
+  border-radius: 8px;
+  padding: 4px;
+  object-fit: contain;
+}
+
+.logo-escudo {
+  display: none;
+}
+
+.header-text { flex: 1; }
+.header-univ {
+  font-size: 11px;
+  color: var(--amarillo-unah);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.header-title {
+  font-size: 22px;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+.header-badge {
+  background: var(--amarillo-unah);
+  color: var(--azul-unah);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 6px 16px;
+  border-radius: 30px;
+  white-space: nowrap;
+}
+.header-strip { background: var(--amarillo-unah); height: 3px; }
+
+/* Navegación */
+.nav-bar {
+  background: var(--azul-oscuro);
+  padding: 7px 36px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
   font-size: 12px;
+  color: var(--gris-claro);
+  flex-wrap: wrap;
+}
+.nav-bar a { color: var(--amarillo-unah); text-decoration: none; font-weight: 500; }
+.nav-bar a:hover { color: white; }
+.nav-bar .separator { opacity: 0.6; }
+
+/* Botón integrantes estilo pestaña */
+.integrantes-btn {
+  background: var(--amarillo-unah);
+  color: var(--azul-unah);
+  border: none;
+  padding: 5px 14px;
+  border-radius: 30px;
+  font-family: var(--font-futura);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+.integrantes-btn:hover {
+  background: white;
+  transform: scale(1.02);
 }
 
-.link {
-  fill: none;
-  stroke: #555;
-  stroke-width: 1.5px;
+/* Modal de integrantes - VERSIÓN AMPLIADA */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px);
+}
+.modal-content {
+  background: white;
+  border-radius: 28px;
+  width: 520px;
+  max-width: 90%;
+  padding: 28px 32px;
+  box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+  text-align: center;
+  position: relative;
+  animation: fadeInUp 0.3s ease;
+  border-top: 6px solid var(--amarillo-unah);
+}
+.modal-content h3 {
+  font-family: var(--font-futura);
+  color: var(--azul-unah);
+  margin-bottom: 20px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.modal-content ul {
+  list-style: none;
+  text-align: left;
+  margin: 20px 0;
+  padding: 0;
+}
+.modal-content li {
+  padding: 12px 8px;
+  font-size: 15px;
+  border-bottom: 1px solid #eef2f7;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1a2c3e;
+}
+.modal-content li::before {
+  content: "👥";
+  font-size: 16px;
+  opacity: 0.8;
+}
+.modal-content button {
+  background: var(--azul-unah);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-family: var(--font-futura);
+  font-weight: 600;
+  font-size: 14px;
+  margin-top: 15px;
+  transition: 0.2s;
+}
+.modal-content button:hover {
+  background: var(--azul-claro);
+  transform: scale(1.02);
+}
+.close-modal {
+  position: absolute;
+  top: 16px;
+  right: 22px;
+  font-size: 28px;
+  cursor: pointer;
+  color: #8a9bb0;
+  transition: 0.2s;
+}
+.close-modal:hover {
+  color: var(--rojo-error);
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(25px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Status bar */
+.status-bar {
+  background: #1E2A3A;
+  padding: 6px 36px;
+  font-size: 11px;
+  color: #BDC4D1;
+  display: flex;
+  gap: 14px;
+  font-family: var(--font-mono);
+  border-bottom: 1px solid rgba(245,199,32,0.2);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--verde-exito);
+  display: inline-block;
+  animation: pulse 2s infinite;
+}
+.status-dot.err { background: var(--rojo-error); animation: none; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1);}
+  50%       { opacity: 0.6; transform: scale(0.95);}
+}
+
+/* Layout */
+main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 36px 60px;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Cards */
+.card {
+  background: #FFFFFF;
+  border: 1px solid var(--gris-borde);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(29,56,110,0.08);
+}
+.card-hdr {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--azul-unah);
+}
+.card-hdr.gold { background: var(--amarillo-unah); }
+.card-hdr.gold h3 { color: var(--azul-unah); }
+.card-hdr.gold svg { stroke: var(--azul-unah); }
+.card-hdr.dark { background: var(--azul-oscuro); }
+.card-hdr.vine { background: var(--azul-claro); }
+.card-hdr h3 {
+  font-size: 16px;
+  color: #fff;
+  font-weight: 600;
+}
+.card-hdr svg { stroke: white; }
+.card-body { padding: 20px; }
+
+/* Textarea */
+.code-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--azul-unah);
+  margin-bottom: 8px;
+}
+.code-wrap { position: relative; }
+.line-nums {
+  position: absolute; top: 0; left: 0;
+  width: 38px;
+  background: #F0F2F5;
+  border-right: 1px solid var(--gris-borde);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+  pointer-events: none;
+  border-radius: 8px 0 0 8px;
+}
+.line-nums span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #5D6F88;
+  line-height: 21px;
+}
+#entrada {
+  width: 100%;
+  min-height: 130px;
+  padding: 12px 12px 12px 50px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 21px;
+  background: #FEFEFC;
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+  resize: vertical;
+  outline: none;
+}
+#entrada:focus {
+  border-color: var(--azul-unah);
+  box-shadow: 0 0 0 3px rgba(29,56,110,0.15);
+}
+
+/* Botones */
+.btn-row { display: flex; gap: 12px; margin-top: 18px; }
+.btn {
+  flex: 1;
+  padding: 10px 14px;
+  font-family: var(--font-futura);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: var(--azul-unah);
+  color: var(--amarillo-unah);
+  border-bottom: 3px solid var(--azul-oscuro);
+}
+.btn-primary:hover { background: var(--azul-claro); transform: translateY(-2px); color: white; }
+.btn-ghost {
+  background: transparent;
+  color: var(--azul-unah);
+  border: 2px solid var(--gris-borde);
+}
+.btn-ghost:hover { background: var(--amarillo-unah); border-color: var(--azul-unah); }
+.spinner {
+  display: none;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(245,199,32,0.3);
+  border-top-color: var(--amarillo-unah);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Resultado */
+#resultado-panel { display: none; }
+.res-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 1.4px;
+  margin-bottom: 10px;
+}
+.res-ok { color: var(--azul-unah); }
+.res-err { color: var(--rojo-error); }
+#resultado {
+  background: #F9FAFE;
+  border: 1px solid var(--gris-borde);
+  border-left: 5px solid var(--azul-unah);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+#resultado.error { border-left-color: var(--rojo-error); color: var(--rojo-error); }
+
+/* Procedimiento */
+#procedimiento {
+  background: #F4F7FC;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  border-left: 4px solid var(--amarillo-unah);
+  margin-top: 10px;
+}
+#procedimiento h4 {
+  font-family: var(--font-futura);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--azul-unah);
+}
+#procedimiento pre {
+  white-space: pre-wrap;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Tabla tokens */
+.tok-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tok-table th {
+  background: var(--azul-oscuro);
+  color: var(--amarillo-unah);
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+.tok-table td { padding: 8px 12px; border-bottom: 1px solid #E9ECEF; }
+.tok-table tr:nth-child(even) td { background: #F8F9FC; }
+.tok-table tr:hover td { background: #FFF9E0; }
+.tok-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-block;
+}
+.t-num  { background: #FFF0DB; color: #B45F06; }
+.t-id   { background: #E1EDFC; color: var(--azul-unah); }
+.t-kw   { background: #E0F2E9; color: #1B5E20; }
+.t-def  { background: #E2E6EA; color: #2C3E50; }
+
+/* Árbol */
+.tree-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: #FFFFFF;
+  border: 1px solid var(--gris-borde);
+  border-radius: 40px;
+  flex-wrap: wrap;
+}
+.legend { display: flex; gap: 8px; font-size: 12px; font-weight: 500; color: var(--azul-unah); }
+.leg-dot { width: 12px; height: 12px; border-radius: 50%; }
+.tree-wrap {
+  background: #FFFFFF;
+  border: 1px solid var(--gris-borde);
+  border-radius: 20px;
+  min-height: 480px;
+  position: relative;
+  overflow: hidden;
+}
+.tree-empty {
+  position: absolute; inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.tree-empty-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--azul-unah);
+  opacity: 0.7;
+}
+#svg-tree { display: none; width: 100%; background: #FFFFFF; }
+
+/* Expandible explanation (acordeón) */
+.explanation-section {
+  margin-top: 20px;
+}
+.explanation-item {
+  background: #FFFFFF;
+  border: 1px solid var(--gris-borde);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.explanation-header {
+  background: var(--azul-claro);
+  color: white;
+  padding: 12px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
+}
+.explanation-header:hover {
+  background: var(--azul-unah);
+}
+.explanation-header .icon {
+  font-size: 18px;
+  transition: transform 0.2s;
+}
+.explanation-content {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, padding 0.2s;
+  background: #FDFBF7;
+  border-top: 1px solid transparent;
+}
+.explanation-content.open {
+  max-height: 300px;
+  padding: 14px 18px;
+  border-top-color: var(--gris-borde);
+}
+.explanation-content ul {
+  margin-left: 20px;
+  color: var(--negro);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.explanation-content li {
+  margin: 6px 0;
+}
+
+/* Ejemplos */
+.example-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--gris-borde);
+  border-radius: 60px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+.example-btn:hover {
+  background: var(--amarillo-unah);
+  border-color: var(--azul-unah);
+  transform: translateX(4px);
+}
+.example-btn code { font-family: var(--font-mono); font-size: 13px; color: var(--azul-unah); font-weight: 600; flex:1; }
+.example-btn small { font-size: 10px; color: var(--gris-neutral); }
+
+/* Tooltip */
+.tooltip {
+  position: fixed;
+  background: var(--azul-oscuro);
+  color: var(--amarillo-unah);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  border-left: 3px solid var(--amarillo-unah);
+  z-index: 9999;
+  white-space: nowrap;
+}
+
+/* Footer */
+.footer-divider {
+  height: 2px;
+  background: linear-gradient(90deg, var(--azul-unah), var(--amarillo-unah), var(--azul-unah));
+  margin: 0 36px;
+}
+footer {
+  background: var(--azul-oscuro);
+  border-top: 3px solid var(--amarillo-unah);
+  padding: 24px 36px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.footer-l { color: var(--gris-claro); font-size: 13px; }
+.footer-l strong { display: block; color: var(--amarillo-unah); font-size: 16px; }
+.footer-r { font-size: 11px; color: #BDC4D1; text-align: right; }
+
+@media (max-width: 880px) {
+  main { grid-template-columns: 1fr; padding: 20px 16px 40px; }
+  .header-top, .nav-bar, .status-bar { padding: 7px 20px; }
+  footer { flex-direction: column; text-align: center; }
+  .escudo { height: 35px; }
+  .modal-content { width: 90%; padding: 20px; }
+  .modal-content li { font-size: 13px; }
 }
 </style>
 </head>
-
 <body>
 
-<h2>Analizador de Gramática</h2>
+<header>
+  <div class="header-top">
+    <div class="escudos-container">
+      <img class="escudo" src="Ingenieria-en-Sistemas-Color.png" alt="Ingeniería en Sistemas" onerror="this.style.display='none'">
+      <img class="escudo" src="UNAH-escudo.png" alt="UNAH" onerror="this.style.display='none'">
+    </div>
+    <div class="header-text">
+      <div class="header-univ">Universidad Nacional Autónoma de Honduras · Ingenieria en Sistemas</div>
+      <div class="header-title">Convertidor de Números</div>
+    </div>
+    <div class="header-badge">Grupo 5</div>
+  </div>
+  <div class="header-strip"></div>
+</header>
 
-<input type="text" id="entrada" placeholder="Ej: 525Romano$">
-<button onclick="enviar()">Procesar</button>
+<nav class="nav-bar">
+  <a href="#">UNAH</a> <span class="separator">›</span> <a href="#">Compiladores</a> <span class="separator">›</span>
+  <span style="color:var(--amarillo-unah); font-weight:600;">Proyecto Final — Convertidor</span>
+  <button id="btn-integrantes" class="integrantes-btn">👥 Integrantes</button>
+</nav>
 
-<p id="resultado"></p>
+<div class="status-bar">
+  <span class="status-dot" id="sdot"></span>
+  <span id="stext">Listo · Conectando con backend</span>
+  <span style="margin-left:auto;">Backend: 127.0.0.1:5000 · Ctrl+Enter</span>
+</div>
 
-<svg width="1000" height="600"></svg>
+<main>
+  <aside class="panel-input">
+    <div class="card">
+      <div class="card-hdr">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <h3>Cadena de Entrada</h3>
+      </div>
+      <div class="card-body">
+        <p class="code-label">Expresión con sufijo (ej: 525Romano$)</p>
+        <div class="code-wrap">
+          <div class="line-nums" id="lnums"><span>1</span></div>
+          <textarea id="entrada" rows="5" placeholder="Ej: 525Romano$  |  525Hexadecimal$  |  525Octal$" spellcheck="false"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="procesar()" id="btn-ok">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <div class="spinner" id="spin"></div>
+            <span id="blbl">Convertir</span>
+          </button>
+          <button class="btn btn-ghost" onclick="limpiar()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="resultado-panel">
+      <div class="card-hdr vine">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        <h3>Resultado de Conversión</h3>
+      </div>
+      <div class="card-body">
+        <p class="res-label res-ok" id="rlabel">Salida</p>
+        <div id="resultado"></div>
+        <div id="procedimiento" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="card" id="tok-panel" style="display:none;">
+      <div class="card-hdr gold">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
+        <h3>Análisis Léxico (Tokens)</h3>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tok-table"><thead><tr><th>#</th><th>Token</th><th>Tipo</th></tr></thead><tbody id="tokbody"></tbody></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr dark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
+        <h3>Métodos de Conversión</h3>
+      </div>
+      <div class="card-body">
+        <div class="explanation-section">
+          <div class="explanation-item">
+            <div class="explanation-header" onclick="toggleExplanation(this)">
+              <span>🔢 Romano</span>
+              <span class="icon">▼</span>
+            </div>
+            <div class="explanation-content">
+              <ul><li>Se descompone el número en valores posicionales (1000,900,...).</li><li>525 → DXXV</li></ul>
+            </div>
+          </div>
+          <div class="explanation-item">
+            <div class="explanation-header" onclick="toggleExplanation(this)">
+              <span>🔢 Hexadecimal</span>
+              <span class="icon">▼</span>
+            </div>
+            <div class="explanation-content">
+              <ul><li>Divisiones sucesivas entre 16.</li><li>525 → 20D</li></ul>
+            </div>
+          </div>
+          <div class="explanation-item">
+            <div class="explanation-header" onclick="toggleExplanation(this)">
+              <span>🔢 Octal</span>
+              <span class="icon">▼</span>
+            </div>
+            <div class="explanation-content">
+              <ul><li>Divisiones entre 8.</li><li>525 → 1015</li></ul>
+            </div>
+          </div>
+          <div class="explanation-item">
+            <div class="explanation-header" onclick="toggleExplanation(this)">
+              <span>🔢 Binario</span>
+              <span class="icon">▼</span>
+            </div>
+            <div class="explanation-content">
+              <ul><li>Divisiones entre 2.</li><li>525 → 1000001101</li></ul>
+            </div>
+          </div>
+          <div class="explanation-item">
+            <div class="explanation-header" onclick="toggleExplanation(this)">
+              <span>🎲 Alternativo</span>
+              <span class="icon">▼</span>
+            </div>
+            <div class="explanation-content">
+              <ul><li>Multiplica por 7.</li><li>525 → ALT-3675</li></ul>
+            </div>
+          </div>
+          <div class="explanation-item">
+            <div class="explanation-header" onclick="toggleExplanation(this)">
+              <span>🎲 Aleatorio</span>
+              <span class="icon">▼</span>
+            </div>
+            <div class="explanation-content">
+              <ul><li>Elige un método al azar.</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr dark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <h3>Ejemplos de Conversión</h3>
+      </div>
+      <div class="card-body">
+        <p style="font-size:12px; color:var(--azul-unah); margin-bottom:14px;">📋 Selecciona una cadena:</p>
+        <button class="example-btn" onclick="cargar('525Romano$')"><code>525Romano$</code> <small>→ DXXV</small></button>
+        <button class="example-btn" onclick="cargar('525Hexadecimal$')"><code>525Hexadecimal$</code> <small>→ 20D</small></button>
+        <button class="example-btn" onclick="cargar('525Octal$')"><code>525Octal$</code> <small>→ 1015</small></button>
+        <button class="example-btn" onclick="cargar('525Binario$')"><code>525Binario$</code> <small>→ 1000001101</small></button>
+        <button class="example-btn" onclick="cargar('525Alternativo$')"><code>525Alternativo$</code> <small>→ ALT-3675</small></button>
+        <button class="example-btn" onclick="cargar('525Aleatorio$')"><code>525Aleatorio$</code> <small>→ (aleatorio)</small></button>
+      </div>
+    </div>
+  </aside>
+
+  <section class="panel-tree">
+    <div class="tree-toolbar">
+      <div class="legend"><span class="leg-dot" style="background:var(--azul-unah);"></span> Nodo interno</div>
+      <div class="legend"><span class="leg-dot" style="background:var(--amarillo-unah);"></span> Terminal</div>
+      <div style="margin-left:auto; display:flex; gap:12px;">
+        <label style="font-size:11px; font-weight:700;">ZOOM</label>
+        <input type="range" id="zrange" min="40" max="220" value="100" style="accent-color:var(--azul-unah); width:100px;" oninput="setZoom(this.value)">
+        <span id="zval" style="min-width:42px;">100%</span>
+        <button class="btn-ghost" style="padding:5px 14px; border-radius:40px;" onclick="resetZoom()">Reset</button>
+      </div>
+    </div>
+    <div class="tree-wrap" id="twrap">
+      <div class="tree-empty" id="tempty">
+        <div class="tree-empty-icon"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--azul-unah)" stroke-width="1.2"><circle cx="12" cy="4" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><line x1="12" y1="6.5" x2="12" y2="13"/><line x1="12" y1="13" x2="5.5" y2="16.5"/><line x1="12" y1="13" x2="18.5" y2="16.5"/></svg></div>
+        <div class="tree-empty-title">Árbol sintáctico</div>
+        <div class="tree-empty-sub">Ingresa una cadena y presiona Convertir</div>
+      </div>
+      <svg id="svg-tree"></svg>
+    </div>
+  </section>
+</main>
+
+<div class="footer-divider"></div>
+<footer>
+  <div class="footer-l"><strong>Universidad Nacional Autónoma de Honduras</strong> Facultad de Ingeniería en Sistemas · Diseño de Compiladores</div>
+  <div class="footer-r">Proyecto Final — Grupo 5 · Convertidor de Números<br>Período Académico 1 2026</div>
+</footer>
+<div class="tooltip" id="tip"></div>
+
+<!-- Modal integrantes - VERSIÓN AMPLIADA -->
+<div id="modalIntegrantes" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="cerrarModal()">&times;</span>
+    <h3>👥 Integrantes Grupo 5</h3>
+    <ul>
+      <li>20131001536 - Michael Hernan Archaga Nuñez</li>
+      <li>20181006565 - Idalia Ivón Zelaya Cruz</li>
+      <li>20191005514 - Sara Nicolle Salinas Ramos</li>
+      <li>20191032481 - Diego Fernando Rubio Godoy</li>
+      <li>20221001175 - José Francisco Vargas Carrasco</li>
+    </ul>
+    <button onclick="cerrarModal()">Cerrar</button>
+  </div>
+</div>
 
 <script>
-const svg = d3.select("svg").append("g")
-    .attr("transform", "translate(50,50)");
+// -------- UI HELPERS ----------
+const entrada = document.getElementById('entrada');
+const lnums   = document.getElementById('lnums');
+entrada.addEventListener('input', () => {
+  const n = entrada.value.split('\n').length;
+  lnums.innerHTML = Array.from({length: n}, (_, i) => `<span>${i+1}</span>`).join('');
+});
 
-const treeLayout = d3.tree().size([500, 800]);
+function cargar(txt) {
+  entrada.value = txt;
+  lnums.innerHTML = '<span>1</span>';
+}
 
-function enviar() {
-    const entrada = document.getElementById("entrada").value;
+function limpiar() {
+  entrada.value = '';
+  lnums.innerHTML = '<span>1</span>';
+  document.getElementById('resultado-panel').style.display = 'none';
+  document.getElementById('tok-panel').style.display = 'none';
+  document.getElementById('tempty').style.display = 'flex';
+  document.getElementById('svg-tree').style.display = 'none';
+  setStatus('Listo · Esperando entrada', false);
+}
 
-    fetch("http://127.0.0.1:5000/parse", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ entrada })
+function setStatus(msg, isErr) {
+  document.getElementById('stext').textContent = msg;
+  const d = document.getElementById('sdot');
+  d.className = 'status-dot' + (isErr ? ' err' : '');
+}
+
+function setLoading(on) {
+  document.getElementById('spin').style.display = on ? 'block' : 'none';
+  document.getElementById('blbl').style.display = on ? 'none' : 'inline';
+  document.getElementById('btn-ok').disabled = on;
+}
+
+// Modal integrantes
+function mostrarModal() {
+  document.getElementById('modalIntegrantes').style.display = 'flex';
+}
+function cerrarModal() {
+  document.getElementById('modalIntegrantes').style.display = 'none';
+}
+window.onclick = function(event) {
+  const modal = document.getElementById('modalIntegrantes');
+  if (event.target === modal) {
+    cerrarModal();
+  }
+}
+document.getElementById('btn-integrantes').addEventListener('click', mostrarModal);
+
+// -------- TOGGLE EXPLANATIONS ----------
+function toggleExplanation(header) {
+  const content = header.nextElementSibling;
+  const icon = header.querySelector('.icon');
+  if (content.classList.contains('open')) {
+    content.classList.remove('open');
+    icon.textContent = '▼';
+  } else {
+    content.classList.add('open');
+    icon.textContent = '▲';
+  }
+}
+
+// -------- GENERAR PROCEDIMIENTO DETALLADO ----------
+function generarProcedimiento(numero, sistema, resultado) {
+  let html = `<h4>📐 Procedimiento (${sistema})</h4><pre>`;
+  const n = parseInt(numero, 10);
+  if (isNaN(n)) return '<pre>No se pudo generar el procedimiento.</pre>';
+  
+  if (sistema === 'Binario') {
+    let num = n;
+    const pasos = [];
+    while (num > 0) {
+      let resto = num % 2;
+      pasos.push(`${num} ÷ 2 = ${Math.floor(num/2)}  residuo ${resto}`);
+      num = Math.floor(num/2);
+    }
+    html += pasos.join('\n');
+    html += `\n→ Leyendo residuos de abajo arriba: ${resultado}`;
+  } 
+  else if (sistema === 'Octal') {
+    let num = n;
+    const pasos = [];
+    while (num > 0) {
+      let resto = num % 8;
+      pasos.push(`${num} ÷ 8 = ${Math.floor(num/8)}  residuo ${resto}`);
+      num = Math.floor(num/8);
+    }
+    html += pasos.join('\n');
+    html += `\n→ Leyendo residuos de abajo arriba: ${resultado}`;
+  }
+  else if (sistema === 'Hexadecimal') {
+    let num = n;
+    const pasos = [];
+    const hexMap = {10:'A',11:'B',12:'C',13:'D',14:'E',15:'F'};
+    while (num > 0) {
+      let resto = num % 16;
+      let restoStr = resto;
+      if (resto >= 10) restoStr = hexMap[resto];
+      pasos.push(`${num} ÷ 16 = ${Math.floor(num/16)}  residuo ${resto} (${restoStr})`);
+      num = Math.floor(num/16);
+    }
+    html += pasos.join('\n');
+    html += `\n→ Leyendo residuos de abajo arriba: ${resultado}`;
+  }
+  else if (sistema === 'Romano') {
+    const valores = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+    const simbolos = ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"];
+    let temp = n;
+    const desglose = [];
+    for (let i = 0; i < valores.length; i++) {
+      while (temp >= valores[i]) {
+        desglose.push(`${valores[i]} → ${simbolos[i]}`);
+        temp -= valores[i];
+      }
+    }
+    html += `Descomposición:\n${desglose.join('\n')}\n→ Resultado: ${resultado}`;
+  }
+  else if (sistema === 'Alternativo') {
+    html += `Multiplicación: ${n} × 7 = ${n*7}\n→ Resultado: ALT-${n*7}`;
+  }
+  else if (sistema === 'Aleatorio') {
+    html += `Método elegido aleatoriamente por el backend.\nResultado: ${resultado}`;
+  }
+  else {
+    html += `Procedimiento no disponible para ${sistema}.`;
+  }
+  html += '</pre>';
+  return html;
+}
+
+// -------- TOKEN TYPE (para la tabla) ----------
+function tipoToken(token) {
+  if (/^\d+$/.test(token)) return ['t-num','NÚMERO'];
+  if (['Hexadecimal','Octal','Binario','Romano','Alternativo','Aleatorio'].includes(token))
+    return ['t-kw','SUFIJO'];
+  if (token === '$') return ['t-def','FIN'];
+  return ['t-id','IDENTIFICADOR'];
+}
+
+// -------- CONEXIÓN CON BACKEND ----------
+function procesar() {
+  const texto = entrada.value.trim();
+  if (!texto) return;
+  setLoading(true);
+  setStatus("Enviando al backend...", false);
+
+  fetch('http://127.0.0.1:5000/parse', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ entrada: texto })
+  })
+  .then(res => res.json())
+  .then(data => {
+    setLoading(false);
+    if (!data.ok) {
+      showError(data.error || "Error en el análisis");
+      return;
+    }
+    renderSuccess(data, texto);
+  })
+  .catch(err => {
+    setLoading(false);
+    showError("No se pudo conectar con el backend. Asegúrate de que Flask esté corriendo en http://127.0.0.1:5000");
+    console.error(err);
+  });
+}
+
+function showError(msg) {
+  document.getElementById('resultado-panel').style.display = 'block';
+  const resDiv = document.getElementById('resultado');
+  resDiv.className = 'error';
+  resDiv.textContent = `✗ ${msg}`;
+  document.getElementById('rlabel').textContent = 'Error';
+  document.getElementById('rlabel').className = 'res-label res-err';
+  document.getElementById('tok-panel').style.display = 'none';
+  document.getElementById('procedimiento').style.display = 'none';
+  setStatus(`Error: ${msg}`, true);
+}
+
+function renderSuccess(data, textoOriginal) {
+  const tokens = data.resultado || [];
+  let conversionText = tokens.length ? tokens[0] : "Sin resultado";
+  
+  const resDiv = document.getElementById('resultado');
+  resDiv.className = '';
+  resDiv.innerHTML = `<span style="font-weight:700;">➜ Salida: </span> ${conversionText}<br><span style="font-size:11px; opacity:0.7;">🔍 Tokens: ${tokens.join(' · ')}</span>`;
+  document.getElementById('resultado-panel').style.display = 'block';
+  document.getElementById('rlabel').textContent = `Conversión completada (${tokens.length} token${tokens.length!==1?'s':''})`;
+  document.getElementById('rlabel').className = 'res-label res-ok';
+  
+  let match = textoOriginal.match(/^(\d+)([A-Za-z]+)\$$/);
+  if (match) {
+    const numero = match[1];
+    let sufijo = match[2];
+    let sistemaMostrar = sufijo;
+    if (sufijo === 'Aleatorio') {
+      const sysMatch = conversionText.match(/Sistema: (\w+)/);
+      if (sysMatch) sistemaMostrar = sysMatch[1];
+    }
+    let resultadoLimpio = conversionText;
+    const parenIndex = conversionText.indexOf(')');
+    if (parenIndex !== -1) resultadoLimpio = conversionText.substring(parenIndex+1).trim();
+    
+    const procHtml = generarProcedimiento(numero, sistemaMostrar, resultadoLimpio);
+    const procDiv = document.getElementById('procedimiento');
+    procDiv.innerHTML = procHtml;
+    procDiv.style.display = 'block';
+  } else {
+    document.getElementById('procedimiento').style.display = 'none';
+  }
+  
+  const lexTokens = textoOriginal.match(/[A-Za-z_][A-Za-z0-9_]*|\d+|[^\s]/g) || [];
+  const tokBody = document.getElementById('tokbody');
+  tokBody.innerHTML = lexTokens.map((t, i) => {
+    const [cls, tipo] = tipoToken(t);
+    return `<tr><td style="color:#4A627A;">${i+1}</td><td><code style="font-weight:500;">${t}</code></td><td><span class="tok-badge ${cls}">${tipo}</span></td></tr>`;
+  }).join('');
+  document.getElementById('tok-panel').style.display = 'block';
+  
+  if (data.tree) {
+    document.getElementById('tempty').style.display = 'none';
+    document.getElementById('svg-tree').style.display = 'block';
+    drawTree(data.tree);
+  } else {
+    document.getElementById('tempty').style.display = 'flex';
+    document.getElementById('svg-tree').style.display = 'none';
+  }
+  setStatus(`OK · ${conversionText.substring(0, 50)}`, false);
+}
+
+// -------- DIBUJO DE ÁRBOL (D3) ----------
+let _svg, _zb;
+function drawTree(data) {
+  const wrap = document.getElementById('twrap');
+  const W = wrap.clientWidth || 800;
+  const H = 480;
+  const svg = d3.select('#svg-tree');
+  svg.attr('width', W).attr('height', H).selectAll('*').remove();
+  const g = svg.append('g').attr('transform', 'translate(70,50)');
+  const tip = document.getElementById('tip');
+  _zb = d3.zoom().scaleExtent([0.25, 4]).on('zoom', e => g.attr('transform', e.transform));
+  svg.call(_zb);
+  _svg = svg;
+  const layout = d3.tree().size([H - 100, W - 150]);
+  const root = d3.hierarchy(data);
+  layout(root);
+  g.selectAll('.lnk')
+    .data(root.links())
+    .enter().append('path')
+    .attr('fill','none').attr('stroke','#B0C4DE').attr('stroke-width',2)
+    .style('opacity',0)
+    .attr('d', d3.linkHorizontal().x(d=>d.y).y(d=>d.x))
+    .transition().duration(500).delay((_,i)=>i*25).style('opacity',1);
+  const nd = g.selectAll('.nd')
+    .data(root.descendants())
+    .enter().append('g')
+    .attr('transform', d=>`translate(${d.y},${d.x})`)
+    .style('cursor','pointer')
+    .on('mouseover', (ev,d)=>{
+      tip.style.opacity='1';
+      tip.textContent = `${d.data.name} · ${d.data.type || (d.children?'no terminal':'terminal')}`;
     })
-    .then(res => res.json())
-    .then(data => {
-
-        if (!data.ok) {
-            document.getElementById("resultado").innerText = data.error;
-            return;
-        }
-
-        document.getElementById("resultado").innerText = data.resultado.join(", ");
-
-        dibujarArbol(data.tree);
-    });
+    .on('mousemove', ev=>{ tip.style.left=(ev.clientX+14)+'px'; tip.style.top=(ev.clientY-30)+'px'; })
+    .on('mouseleave', ()=>{ tip.style.opacity='0'; });
+  nd.append('circle')
+    .attr('r',0)
+    .attr('fill', d=> d.data.type === 'terminal' ? 'var(--amarillo-unah)' : 'var(--azul-unah)')
+    .attr('stroke','#fff').attr('stroke-width',2.5)
+    .transition().duration(400).delay((_,i)=>i*35)
+    .attr('r', d=> d.data.type === 'terminal' ? 7 : 10);
+  nd.append('text')
+    .attr('dx', d=> d.children ? -16 : 16).attr('dy',5)
+    .attr('text-anchor', d=> d.children ? 'end' : 'start')
+    .attr('font-family','Futura Std, Century Gothic, sans-serif')
+    .attr('font-size',12).attr('font-weight','500')
+    .attr('fill','#1A2C3E')
+    .text(d=>d.data.name)
+    .style('opacity',0)
+    .transition().duration(400).delay((_,i)=>i*35+200).style('opacity',1);
 }
 
-function dibujarArbol(data) {
-
-    svg.selectAll("*").remove();
-
-    const root = d3.hierarchy(data);
-    treeLayout(root);
-
-    // Links
-    svg.selectAll(".link")
-        .data(root.links())
-        .enter()
-        .append("path")
-        .attr("class", "link")
-        .attr("d", d3.linkHorizontal()
-            .x(d => d.y)
-            .y(d => d.x)
-        );
-
-    // Nodos
-    const node = svg.selectAll(".node")
-        .data(root.descendants())
-        .enter()
-        .append("g")
-        .attr("transform", d => `translate(${d.y},${d.x})`);
-
-    // Color por tipo
-    node.append("circle")
-        .attr("r", 6)
-        .attr("fill", d => d.data.type === "terminal" ? "#ff7f0e" : "#1f77b4");
-
-    // Texto
-    node.append("text")
-        .attr("dx", 10)
-        .attr("dy", 4)
-        .text(d => d.data.name);
-
-    // Tooltip
-    node.append("title")
-        .text(d => d.data.type);
+function setZoom(v) {
+  document.getElementById('zval').textContent = v+'%';
+  if (!_svg) return;
+  _svg.transition().duration(200).call(_zb.scaleTo, v/100);
 }
+function resetZoom() {
+  document.getElementById('zrange').value = 100;
+  document.getElementById('zval').textContent = '100%';
+  if (!_svg) return;
+  _svg.transition().duration(300).call(_zb.transform, d3.zoomIdentity.translate(70,50));
+}
+
+entrada.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') procesar(); });
+setStatus("Backend listo. Esperando entrada.", false);
 </script>
-
 </body>
 </html>
