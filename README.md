@@ -176,7 +176,7 @@ ABC Binario$     # Entrada no es numérica
                        │
 ┌──────────────────────▼──────────────────────────────────────────┐
 │ 4. ÁRBOL SINTÁCTICO ABSTRACTO (AST)                             │
-│    programa                                                      │
+│    programa                                                     │
 │    └─ instruccion                                               │
 │       ├─ conversion                                             │
 │       │  ├─ numero: 525                                         │
@@ -192,7 +192,7 @@ ABC Binario$     # Entrada no es numérica
 └──────────────────────┬──────────────────────────────────────────┘
                        │
 ┌──────────────────────▼──────────────────────────────────────────┐
-│ 6. RESULTADO                                                     │
+│ 6. RESULTADO                                                    │
 │    525 (decimal) → DXXV (romano)                                │
 └─────────────────────────────────────────────────────────────────┘
 ```
