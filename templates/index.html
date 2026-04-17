@@ -1,10 +1,40 @@
+<!--
+Convertidor de Números - Interfaz Web
+
+Descripción:
+  Interfaz web completa para convertir números decimales a diferentes sistemas numéricos
+  usando Flask como backend y Lark para parsing. La UI incluye:
+  - Entrada manual o por archivo .txt
+  - Visualización del árbol sintáctico con D3.js
+  - Análisis léxico con tabla de tokens
+  - Procedimiento detallado de conversión
+  - Explica cada método de conversión
+  - Modo claro con colores institucionales UNAH
+
+Tecnologías:
+  - HTML5 + CSS3 (variables CSS para theming)
+  - JavaScript Vanilla (sin frameworks)
+  - D3.js v7 para visualización de árboles
+  - Fetch API para comunicación con backend Flask
+  - FileReader API para carga de archivos
+
+Estructura:
+  1. Head: Metadatos, estilos CSS, scripts externos
+  2. Header: Branding UNAH + navegación
+  3. Main: Panel lateral (entrada/resultados) + Panel derecha (árbol sintáctico)
+  4. Footer: Créditos académicos
+  5. Script: JavaScript para interactividad
+-->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Convertidor de Números — Grupo 5 | UNAH</title>
+<!-- D3.js: Librería para visualizar árboles sintácticos -->
 <script src="https://d3js.org/d3.v7.min.js"></script>
+<!-- Fuentes: Inter para UI, compatible con marca UNAH -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
@@ -666,65 +696,88 @@ footer {
 </head>
 <body>
 
+<!-- HEADER: Encabezado con marca UNAH, navegación y estado del backend -->
 <header>
   <div class="header-top">
+    <!-- Logos institucionales de UNAH e Ingeniería en Sistemas -->
     <div class="escudos-container">
       <img class="escudo" src="Ingenieria-en-Sistemas-Color.png" alt="Ingeniería en Sistemas" onerror="this.style.display='none'">
       <img class="escudo" src="UNAH-escudo.png" alt="UNAH" onerror="this.style.display='none'">
     </div>
+    <!-- Información del proyecto -->
     <div class="header-text">
       <div class="header-univ">Universidad Nacional Autónoma de Honduras · Ingenieria en Sistemas</div>
       <div class="header-title">Convertidor de Números</div>
     </div>
+    <!-- Badge del grupo responsable -->
     <div class="header-badge">Grupo 5</div>
   </div>
   <div class="header-strip"></div>
 </header>
 
+<!-- NAVEGACIÓN: Migas de pan + botón de integrantes -->
 <nav class="nav-bar">
   <a href="#">UNAH</a> <span class="separator">›</span> <a href="#">Compiladores</a> <span class="separator">›</span>
   <span style="color:var(--amarillo-unah); font-weight:600;">Proyecto Final — Convertidor</span>
+  <!-- Botón para mostrar lista de integrantes del grupo -->
   <button id="btn-integrantes" class="integrantes-btn">👥 Integrantes</button>
 </nav>
 
+<!-- BARRA DE ESTADO: Muestra conexión con backend y atajos de teclado -->
 <div class="status-bar">
+  <!-- Indicador visual de estado (verde = ok, rojo = error) -->
   <span class="status-dot" id="sdot"></span>
   <span id="stext">Listo · Conectando con backend</span>
   <span style="margin-left:auto;">Backend: 127.0.0.1:5000 · Ctrl+Enter</span>
 </div>
 
+<!-- ÁREA PRINCIPAL: Dos columnas (entrada/resultados + árbol sintáctico) -->
 <main>
+  <!-- COLUMNA IZQUIERDA: Panel de entrada y análisis -->
   <aside class="panel-input">
+    <!-- TABS: Selector entre entrada manual y carga de archivo -->
     <div class="card-body">
-        
+        <!-- Sistema de pestañas para elegir entre escribir o subir archivo -->
         <div class="tabs-header">
+          <!-- Pestaña 1: Entrada manual en textarea -->
           <button id="btn-tab-manual" class="tab-btn active" onclick="switchTab('manual')">✍️ Texto Manual</button>
+          <!-- Pestaña 2: Carga de archivo .txt -->
           <button id="btn-tab-file" class="tab-btn" onclick="switchTab('file')">📄 Subir .txt</button>
         </div>
 
+        <!-- TAB 1: ENTRADA MANUAL -->
         <div id="tab-manual" class="tab-content active">
           <p class="code-label">Expresión con sufijo (ej: 525Romano$)</p>
           <div class="code-wrap">
+            <!-- Números de línea dinámicos -->
             <div class="line-nums" id="lnums"><span>1</span></div>
+            <!-- Textarea: Entrada del usuario (formato: número + sistema + $) -->
             <textarea id="entrada" rows="5" placeholder="Ej: 525Romano$  |  525Hexadecimal$  |  525Octal$" spellcheck="false"></textarea>
           </div>
         </div>
 
+        <!-- TAB 2: CARGA DE ARCHIVO -->
         <div id="tab-file" class="tab-content">
+          <!-- Área clickeable para seleccionar archivo .txt -->
           <label class="upload-area" for="archivoTxt">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--azul-unah)" stroke-width="1.5" style="margin-bottom:10px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight: 600; color: var(--azul-unah);">Haz clic para seleccionar tu archivo .txt</div>
             <div style="font-size: 11px; color: var(--gris-neutral); margin-top: 5px;">Se leerá y se enviará al área de texto</div>
+            <!-- Input file oculto (manejado con FileReader) -->
             <input type="file" id="archivoTxt" accept=".txt" style="display: none;">
           </label>
         </div>
 
+        <!-- BOTONES DE ACCIÓN -->
         <div class="btn-row">
+          <!-- Botón Convertir: envía la entrada al backend -->
           <button class="btn btn-primary" onclick="procesar()" id="btn-ok">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <!-- Spinner: visible mientras se procesa -->
             <div class="spinner" id="spin"></div>
             <span id="blbl">Convertir</span>
           </button>
+          <!-- Botón Limpiar: limpia entrada y resultados -->
           <button class="btn btn-ghost" onclick="limpiar()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
             Limpiar
@@ -732,35 +785,44 @@ footer {
         </div>
       </div>
 
+    <!-- PANEL DE RESULTADOS: Mostrado después de procesar -->
     <div class="card" id="resultado-panel">
       <div class="card-hdr vine">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
         <h3>Resultado de Conversión</h3>
       </div>
       <div class="card-body">
+        <!-- Etiqueta de resultado (Salida/Error) -->
         <p class="res-label res-ok" id="rlabel">Salida</p>
+        <!-- Contenedor del resultado de conversión -->
         <div id="resultado"></div>
+        <!-- Contenedor del procedimiento paso a paso (generado por JavaScript) -->
         <div id="procedimiento" style="display:none;"></div>
       </div>
     </div>
 
+    <!-- TABLA DE TOKENS: Análisis léxico con tokens identificados -->
     <div class="card" id="tok-panel" style="display:none;">
       <div class="card-hdr gold">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
         <h3>Análisis Léxico (Tokens)</h3>
       </div>
       <div style="overflow-x:auto;">
+        <!-- Tabla con ID, Token, Tipo -->
         <table class="tok-table"><thead><tr><th>#</th><th>Token</th><th>Tipo</th></tr></thead><tbody id="tokbody"></tbody></table>
       </div>
     </div>
 
+    <!-- EXPLICACIONES: Acordeón con métodos de conversión -->
     <div class="card">
       <div class="card-hdr dark">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
         <h3>Métodos de Conversión</h3>
       </div>
       <div class="card-body">
+        <!-- Sección expandible con explicaciones de cada método -->
         <div class="explanation-section">
+          <!-- Item 1: Conversión a Romano -->
           <div class="explanation-item">
             <div class="explanation-header" onclick="toggleExplanation(this)">
               <span>🔢 Romano</span>
@@ -770,6 +832,7 @@ footer {
               <ul><li>Se descompone el número en valores posicionales (1000,900,...).</li><li>525 → DXXV</li></ul>
             </div>
           </div>
+          <!-- Item 2: Conversión a Hexadecimal -->
           <div class="explanation-item">
             <div class="explanation-header" onclick="toggleExplanation(this)">
               <span>🔢 Hexadecimal</span>
@@ -779,6 +842,7 @@ footer {
               <ul><li>Divisiones sucesivas entre 16.</li><li>525 → 20D</li></ul>
             </div>
           </div>
+          <!-- Item 3: Conversión a Octal -->
           <div class="explanation-item">
             <div class="explanation-header" onclick="toggleExplanation(this)">
               <span>🔢 Octal</span>
@@ -788,6 +852,7 @@ footer {
               <ul><li>Divisiones entre 8.</li><li>525 → 1015</li></ul>
             </div>
           </div>
+          <!-- Item 4: Conversión a Binario -->
           <div class="explanation-item">
             <div class="explanation-header" onclick="toggleExplanation(this)">
               <span>🔢 Binario</span>
@@ -797,6 +862,7 @@ footer {
               <ul><li>Divisiones entre 2.</li><li>525 → 1000001101</li></ul>
             </div>
           </div>
+          <!-- Item 5: Conversión a Alternativo -->
           <div class="explanation-item">
             <div class="explanation-header" onclick="toggleExplanation(this)">
               <span>🎲 Alternativo</span>
@@ -806,6 +872,7 @@ footer {
               <ul><li>Multiplica por 7.</li><li>525 → ALT-3675</li></ul>
             </div>
           </div>
+          <!-- Item 6: Conversión a Aleatorio -->
           <div class="explanation-item">
             <div class="explanation-header" onclick="toggleExplanation(this)">
               <span>🎲 Aleatorio</span>
@@ -819,6 +886,7 @@ footer {
       </div>
     </div>
 
+    <!-- EJEMPLOS RÁPIDOS: Botones para cargar conversiones predefinidas -->
     <div class="card" id="card-ejemplos">
       <div class="card-hdr dark">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -826,6 +894,7 @@ footer {
       </div>
       <div class="card-body">
         <p style="font-size:12px; color:var(--azul-unah); margin-bottom:14px;">📋 Selecciona una cadena:</p>
+        <!-- Botones: cada uno carga un ejemplo en el textarea -->
         <button class="example-btn" onclick="cargar('525Romano$')"><code>525Romano$</code> <small>→ DXXV</small></button>
         <button class="example-btn" onclick="cargar('525Hexadecimal$')"><code>525Hexadecimal$</code> <small>→ 20D</small></button>
         <button class="example-btn" onclick="cargar('525Octal$')"><code>525Octal$</code> <small>→ 1015</small></button>
@@ -836,23 +905,31 @@ footer {
     </div>
   </aside>
 
+  <!-- COLUMNA DERECHA: Visualización del árbol sintáctico con D3.js -->
   <section class="panel-tree">
+    <!-- Barra de herramientas: Leyenda + Control de zoom -->
     <div class="tree-toolbar">
       <div class="legend"><span class="leg-dot" style="background:var(--azul-unah);"></span> Nodo interno</div>
       <div class="legend"><span class="leg-dot" style="background:var(--amarillo-unah);"></span> Terminal</div>
       <div style="margin-left:auto; display:flex; gap:12px;">
         <label style="font-size:11px; font-weight:700;">ZOOM</label>
+        <!-- Control slider para zoom (40% a 220%) -->
         <input type="range" id="zrange" min="40" max="220" value="100" style="accent-color:var(--azul-unah); width:100px;" oninput="setZoom(this.value)">
+        <!-- Mostrador del nivel de zoom actual -->
         <span id="zval" style="min-width:42px;">100%</span>
+        <!-- Botón reset: vuelve al zoom 100% -->
         <button class="btn-ghost" style="padding:5px 14px; border-radius:40px;" onclick="resetZoom()">Reset</button>
       </div>
     </div>
+    <!-- Contenedor del árbol (vacío hasta procesar) -->
     <div class="tree-wrap" id="twrap">
+      <!-- Estado inicial: mensaje de que ingrese una cadena -->
       <div class="tree-empty" id="tempty">
         <div class="tree-empty-icon"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--azul-unah)" stroke-width="1.2"><circle cx="12" cy="4" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><line x1="12" y1="6.5" x2="12" y2="13"/><line x1="12" y1="13" x2="5.5" y2="16.5"/><line x1="12" y1="13" x2="18.5" y2="16.5"/></svg></div>
         <div class="tree-empty-title">Árbol sintáctico</div>
         <div class="tree-empty-sub">Ingresa una cadena y presiona Convertir</div>
       </div>
+      <!-- SVG que contendrá el árbol dibujado por D3.js -->
       <svg id="svg-tree"></svg>
     </div>
   </section>
@@ -1179,56 +1256,539 @@ function resetZoom() {
 entrada.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') procesar(); });
 setStatus("Backend listo. Esperando entrada.", false);
 
+<div class="footer-divider"></div>
+<!-- FOOTER: Información académica e institución -->
+<footer>
+  <div class="footer-l">
+    <strong>Universidad Nacional Autónoma de Honduras</strong> 
+    Facultad de Ingeniería en Sistemas · Diseño de Compiladores
+  </div>
+  <div class="footer-r">
+    Proyecto Final — Grupo 5 · Convertidor de Números<br>
+    Período Académico 1 2026
+  </div>
+</footer>
 
-  // -------- LÓGICA DE PESTAÑAS Y SUBIR ARHCIVOS .txt ----------
-  function switchTab(tabId) {
-    // 1. Resetear botones y vistas
-    document.getElementById('btn-tab-manual').classList.remove('active');
-    document.getElementById('btn-tab-file').classList.remove('active');
-    document.getElementById('tab-manual').classList.remove('active');
-    document.getElementById('tab-file').classList.remove('active');
+<!-- Tooltip flotante: Muestra info sobre nodos del árbol al pasar el ratón -->
+<div class="tooltip" id="tip"></div>
 
-    const cardEjemplos = document.getElementById('card-ejemplos');
+<!-- MODAL: Información de integrantes del grupo -->
+<div id="modalIntegrantes" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="cerrarModal()">&times;</span>
+    <h3>👥 Integrantes Grupo 5</h3>
+    <ul>
+      <li>20131001536 - Michael Hernan Archaga Nuñez</li>
+      <li>20181006565 - Idalia Ivón Zelaya Cruz</li>
+      <li>20191005514 - Sara Nicolle Salinas Ramos</li>
+      <li>20191032481 - Diego Fernando Rubio Godoy</li>
+      <li>20221001175 - José Francisco Vargas Carrasco</li>
+    </ul>
+    <button onclick="cerrarModal()">Cerrar</button>
+  </div>
+</div>
 
-    // 2. Activar la pestaña correcta
-    if (tabId === 'manual') {
-      document.getElementById('btn-tab-manual').classList.add('active');
-      document.getElementById('tab-manual').classList.add('active');
-      
-      // Habilitar los ejemplos de conversión
-      cardEjemplos.classList.remove('disabled-card'); 
-    } else {
-      document.getElementById('btn-tab-file').classList.add('active');
-      document.getElementById('tab-file').classList.add('active');
-      
-      // Deshabilitar (apagar) los ejemplos de conversión
-      cardEjemplos.classList.add('disabled-card'); 
-    }
+<!-- ════════════════════════════════════════════
+     BLOQUE JAVASCRIPT: TODA LA LÓGICA INTERACTIVA
+     ════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────────────────────
+// UTILIDADES DE UI: Gestión de números de línea y elementos
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Actualiza dinámicamente los números de línea del textarea
+ * se ejecuta cada vez que el usuario escribe
+ */
+const entrada = document.getElementById('entrada');
+const lnums   = document.getElementById('lnums');
+entrada.addEventListener('input', () => {
+  const n = entrada.value.split('\n').length;
+  lnums.innerHTML = Array.from({length: n}, (_, i) => `<span>${i+1}</span>`).join('');
+});
+
+/**
+ * cargar(txt)
+ * Función para cargar un ejemplo predefinido en el textarea
+ * @param {string} txt - El texto/ejemplo a cargar
+ */
+function cargar(txt) {
+  entrada.value = txt;
+  lnums.innerHTML = '<span>1</span>';
+}
+
+/**
+ * limpiar()
+ * Limpia toda la entrada y oculta paneles de resultado
+ * Reinicia la aplicación a estado inicial
+ */
+function limpiar() {
+  entrada.value = '';
+  lnums.innerHTML = '<span>1</span>';
+  document.getElementById('resultado-panel').style.display = 'none';
+  document.getElementById('tok-panel').style.display = 'none';
+  document.getElementById('tempty').style.display = 'flex';
+  document.getElementById('svg-tree').style.display = 'none';
+  setStatus('Listo · Esperando entrada', false);
+}
+
+/**
+ * setStatus(msg, isErr)
+ * Actualiza la barra de estado con mensaje y color
+ * @param {string} msg - Mensaje a mostrar
+ * @param {boolean} isErr - Si es error (rojo) o éxito (verde)
+ */
+function setStatus(msg, isErr) {
+  document.getElementById('stext').textContent = msg;
+  const d = document.getElementById('sdot');
+  d.className = 'status-dot' + (isErr ? ' err' : '');
+}
+
+/**
+ * setLoading(on)
+ * Muestra/oculta spinner de carga en el botón de conversión
+ * @param {boolean} on - true para mostrar spinner, false para ocultar
+ */
+function setLoading(on) {
+  document.getElementById('spin').style.display = on ? 'block' : 'none';
+  document.getElementById('blbl').style.display = on ? 'none' : 'inline';
+  document.getElementById('btn-ok').disabled = on;
+}
+
+// ─────────────────────────────────────────────────────────────
+// MODAL: Control de ventana emergente de integrantes
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * mostrarModal()
+ * Abre el modal con la lista de integrantes
+ */
+function mostrarModal() {
+  document.getElementById('modalIntegrantes').style.display = 'flex';
+}
+
+/**
+ * cerrarModal()
+ * Cierra el modal de integrantes
+ */
+function cerrarModal() {
+  document.getElementById('modalIntegrantes').style.display = 'none';
+}
+
+// Cierra el modal al hacer click en el fondo
+window.onclick = function(event) {
+  const modal = document.getElementById('modalIntegrantes');
+  if (event.target === modal) {
+    cerrarModal();
   }
+}
 
-  // 3. Lector de archivos .txt
-  document.getElementById('archivoTxt').addEventListener('change', function(e) {
-    const archivo = e.target.files[0];
-    if (!archivo) return;
-    
-    const lector = new FileReader();
-    lector.onload = function(evento) {
-      // Pegar el texto en el textarea
-      document.getElementById('entrada').value = evento.target.result;
-      
-      // Disparar el evento para que se actualicen los números de línea
-      document.getElementById('entrada').dispatchEvent(new Event('input'));
-      
-      // Regresar automáticamente a la pestaña manual para que el usuario vea su código
-      switchTab('manual');
-      
-      setStatus(`Archivo cargado: ${archivo.name}`, false);
-    };
-    lector.readAsText(archivo);
-    
-    // Limpiar el input para que permita cargar el mismo archivo dos veces si el usuario lo borra
-    e.target.value = ''; 
+// Event listener para abrir modal al clickear botón
+document.getElementById('btn-integrantes').addEventListener('click', mostrarModal);
+
+// ─────────────────────────────────────────────────────────────
+// EXPLICACIONES: Acordeón expandible (toggle)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * toggleExplanation(header)
+ * Abre/cierra una sección de explicación en el acordeón
+ * @param {HTMLElement} header - El elemento header clickeado
+ */
+function toggleExplanation(header) {
+  const content = header.nextElementSibling;
+  const icon = header.querySelector('.icon');
+  if (content.classList.contains('open')) {
+    content.classList.remove('open');
+    icon.textContent = '▼';
+  } else {
+    content.classList.add('open');
+    icon.textContent = '▲';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// PROCEDIMIENTO: Genera pasos detallados de conversión
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * generarProcedimiento(numero, sistema, resultado)
+ * Genera un HTML con los pasos de conversión según el sistema
+ * Útil para educación: muestra cómo se convierte paso a paso
+ * 
+ * @param {string} numero - Número original en decimal
+ * @param {string} sistema - Sistema destino (Binario, Octal, etc)
+ * @param {string} resultado - Resultado final de la conversión
+ * @returns {string} HTML con los pasos formateados
+ */
+function generarProcedimiento(numero, sistema, resultado) {
+  let html = `<h4>📐 Procedimiento (${sistema})</h4><pre>`;
+  const n = parseInt(numero, 10);
+  if (isNaN(n)) return '<pre>No se pudo generar el procedimiento.</pre>';
+  
+  // BINARIO: Divisiones sucesivas entre 2
+  if (sistema === 'Binario') {
+    let num = n;
+    const pasos = [];
+    while (num > 0) {
+      let resto = num % 2;
+      pasos.push(`${num} ÷ 2 = ${Math.floor(num/2)}  residuo ${resto}`);
+      num = Math.floor(num/2);
+    }
+    html += pasos.join('\n');
+    html += `\n→ Leyendo residuos de abajo arriba: ${resultado}`;
+  } 
+  // OCTAL: Divisiones sucesivas entre 8
+  else if (sistema === 'Octal') {
+    let num = n;
+    const pasos = [];
+    while (num > 0) {
+      let resto = num % 8;
+      pasos.push(`${num} ÷ 8 = ${Math.floor(num/8)}  residuo ${resto}`);
+      num = Math.floor(num/8);
+    }
+    html += pasos.join('\n');
+    html += `\n→ Leyendo residuos de abajo arriba: ${resultado}`;
+  }
+  // HEXADECIMAL: Divisiones sucesivas entre 16
+  else if (sistema === 'Hexadecimal') {
+    let num = n;
+    const pasos = [];
+    const hexMap = {10:'A',11:'B',12:'C',13:'D',14:'E',15:'F'};
+    while (num > 0) {
+      let resto = num % 16;
+      let restoStr = resto;
+      if (resto >= 10) restoStr = hexMap[resto];
+      pasos.push(`${num} ÷ 16 = ${Math.floor(num/16)}  residuo ${resto} (${restoStr})`);
+      num = Math.floor(num/16);
+    }
+    html += pasos.join('\n');
+    html += `\n→ Leyendo residuos de abajo arriba: ${resultado}`;
+  }
+  // ROMANO: Descomposición en valores posicionales
+  else if (sistema === 'Romano') {
+    const valores = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+    const simbolos = ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"];
+    let temp = n;
+    const desglose = [];
+    for (let i = 0; i < valores.length; i++) {
+      while (temp >= valores[i]) {
+        desglose.push(`${valores[i]} → ${simbolos[i]}`);
+        temp -= valores[i];
+      }
+    }
+    html += `Descomposición:\n${desglose.join('\n')}\n→ Resultado: ${resultado}`;
+  }
+  // ALTERNATIVO: Multiplicación por 7
+  else if (sistema === 'Alternativo') {
+    html += `Multiplicación: ${n} × 7 = ${n*7}\n→ Resultado: ALT-${n*7}`;
+  }
+  // ALEATORIO: Elegido por backend
+  else if (sistema === 'Aleatorio') {
+    html += `Método elegido aleatoriamente por el backend.\nResultado: ${resultado}`;
+  }
+  else {
+    html += `Procedimiento no disponible para ${sistema}.`;
+  }
+  html += '</pre>';
+  return html;
+}
+
+// ─────────────────────────────────────────────────────────────
+// TOKENS: Identifica tipo de token para tabla léxica
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * tipoToken(token)
+ * Determina el tipo y clase CSS de un token
+ * @param {string} token - El token a clasificar
+ * @returns {array} [clase_css, tipo_nombre]
+ */
+function tipoToken(token) {
+  if (/^\d+$/.test(token)) return ['t-num','NÚMERO'];
+  if (['Hexadecimal','Octal','Binario','Romano','Alternativo','Aleatorio'].includes(token))
+    return ['t-kw','SUFIJO'];
+  if (token === '$') return ['t-def','FIN'];
+  return ['t-id','IDENTIFICADOR'];
+}
+
+// ─────────────────────────────────────────────────────────────
+// CONEXIÓN CON BACKEND: Envío de datos a Flask
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * procesar()
+ * Función principal: Envía entrada al backend Flask
+ * Realiza parsing, transformación y mostrar resultados
+ */
+function procesar() {
+  const texto = entrada.value.trim();
+  if (!texto) return;
+  setLoading(true);
+  setStatus("Enviando al backend...", false);
+
+  // Fetch POST al endpoint /parse del backend Flask
+  fetch('http://127.0.0.1:5000/parse', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ entrada: texto })
+  })
+  .then(res => res.json())
+  .then(data => {
+    setLoading(false);
+    if (!data.ok) {
+      showError(data.error || "Error en el análisis");
+      return;
+    }
+    renderSuccess(data, texto);
+  })
+  .catch(err => {
+    setLoading(false);
+    showError("No se pudo conectar con el backend. Asegúrate de que Flask esté corriendo en http://127.0.0.1:5000");
+    console.error(err);
   });
+}
+
+/**
+ * showError(msg)
+ * Muestra un mensaje de error en el panel de resultado
+ * @param {string} msg - Mensaje de error a mostrar
+ */
+function showError(msg) {
+  document.getElementById('resultado-panel').style.display = 'block';
+  const resDiv = document.getElementById('resultado');
+  resDiv.className = 'error';
+  resDiv.textContent = `✗ ${msg}`;
+  document.getElementById('rlabel').textContent = 'Error';
+  document.getElementById('rlabel').className = 'res-label res-err';
+  document.getElementById('tok-panel').style.display = 'none';
+  document.getElementById('procedimiento').style.display = 'none';
+  setStatus(`Error: ${msg}`, true);
+}
+
+/**
+ * renderSuccess(data, textoOriginal)
+ * Renderiza los resultados exitosos en la UI
+ * Extrae resultado, genera tabla de tokens, dibuja árbol con D3
+ * 
+ * @param {object} data - Respuesta del backend con resultado y árbol
+ * @param {string} textoOriginal - Entrada original del usuario
+ */
+function renderSuccess(data, textoOriginal) {
+  const tokens = data.resultado || [];
+  let conversionText = tokens.length ? tokens[0] : "Sin resultado";
+  
+  // Mostrar resultado en el panel
+  const resDiv = document.getElementById('resultado');
+  resDiv.className = '';
+  resDiv.innerHTML = `<span style="font-weight:700;">➜ Salida: </span> ${conversionText}<br><span style="font-size:11px; opacity:0.7;">🔍 Tokens: ${tokens.join(' · ')}</span>`;
+  document.getElementById('resultado-panel').style.display = 'block';
+  document.getElementById('rlabel').textContent = `Conversión completada (${tokens.length} token${tokens.length!==1?'s':''})`;
+  document.getElementById('rlabel').className = 'res-label res-ok';
+  
+  // Generar procedimiento si la entrada es válida
+  let match = textoOriginal.match(/^(\d+)([A-Za-z]+)\$$/);
+  if (match) {
+    const numero = match[1];
+    let sufijo = match[2];
+    let sistemaMostrar = sufijo;
+    if (sufijo === 'Aleatorio') {
+      const sysMatch = conversionText.match(/Sistema: (\w+)/);
+      if (sysMatch) sistemaMostrar = sysMatch[1];
+    }
+    let resultadoLimpio = conversionText;
+    const parenIndex = conversionText.indexOf(')');
+    if (parenIndex !== -1) resultadoLimpio = conversionText.substring(parenIndex+1).trim();
+    
+    const procHtml = generarProcedimiento(numero, sistemaMostrar, resultadoLimpio);
+    const procDiv = document.getElementById('procedimiento');
+    procDiv.innerHTML = procHtml;
+    procDiv.style.display = 'block';
+  } else {
+    document.getElementById('procedimiento').style.display = 'none';
+  }
+  
+  // Generar tabla de tokens (análisis léxico)
+  const lexTokens = textoOriginal.match(/[A-Za-z_][A-Za-z0-9_]*|\d+|[^\s]/g) || [];
+  const tokBody = document.getElementById('tokbody');
+  tokBody.innerHTML = lexTokens.map((t, i) => {
+    const [cls, tipo] = tipoToken(t);
+    return `<tr><td style="color:#4A627A;">${i+1}</td><td><code style="font-weight:500;">${t}</code></td><td><span class="tok-badge ${cls}">${tipo}</span></td></tr>`;
+  }).join('');
+  document.getElementById('tok-panel').style.display = 'block';
+  
+  // Dibujar árbol sintáctico con D3
+  if (data.tree) {
+    document.getElementById('tempty').style.display = 'none';
+    document.getElementById('svg-tree').style.display = 'block';
+    drawTree(data.tree);
+  } else {
+    document.getElementById('tempty').style.display = 'flex';
+    document.getElementById('svg-tree').style.display = 'none';
+  }
+  setStatus(`OK · ${conversionText.substring(0, 50)}`, false);
+}
+
+// ─────────────────────────────────────────────────────────────
+// DIBUJO DE ÁRBOL: Visualización con D3.js
+// ─────────────────────────────────────────────────────────────
+
+// Variables globales para zoom
+let _svg, _zb;
+
+/**
+ * drawTree(data)
+ * Dibuja el árbol sintáctico usando D3.js
+ * Crea nodos, enlaces, tooltips interactivos y animaciones
+ * 
+ * @param {object} data - Objeto árbol con estructura {name, type, children}
+ */
+function drawTree(data) {
+  const wrap = document.getElementById('twrap');
+  const W = wrap.clientWidth || 800;
+  const H = 480;
+  const svg = d3.select('#svg-tree');
+  svg.attr('width', W).attr('height', H).selectAll('*').remove();
+  const g = svg.append('g').attr('transform', 'translate(70,50)');
+  const tip = document.getElementById('tip');
+  
+  // Configurar zoom interactivo
+  _zb = d3.zoom().scaleExtent([0.25, 4]).on('zoom', e => g.attr('transform', e.transform));
+  svg.call(_zb);
+  _svg = svg;
+  
+  // Crear layout jerárquico
+  const layout = d3.tree().size([H - 100, W - 150]);
+  const root = d3.hierarchy(data);
+  layout(root);
+  
+  // Dibujar enlaces (lines) entre nodos
+  g.selectAll('.lnk')
+    .data(root.links())
+    .enter().append('path')
+    .attr('fill','none').attr('stroke','#B0C4DE').attr('stroke-width',2)
+    .style('opacity',0)
+    .attr('d', d3.linkHorizontal().x(d=>d.y).y(d=>d.x))
+    .transition().duration(500).delay((_,i)=>i*25).style('opacity',1);
+  
+  // Dibujar nodos (círculos) y texto
+  const nd = g.selectAll('.nd')
+    .data(root.descendants())
+    .enter().append('g')
+    .attr('transform', d=>`translate(${d.y},${d.x})`)
+    .style('cursor','pointer')
+    // Tooltip al pasar el ratón
+    .on('mouseover', (ev,d)=>{
+      tip.style.opacity='1';
+      tip.textContent = `${d.data.name} · ${d.data.type || (d.children?'no terminal':'terminal')}`;
+    })
+    .on('mousemove', ev=>{ tip.style.left=(ev.clientX+14)+'px'; tip.style.top=(ev.clientY-30)+'px'; })
+    .on('mouseleave', ()=>{ tip.style.opacity='0'; });
+  
+  // Animar círculos de nodos
+  nd.append('circle')
+    .attr('r',0)
+    .attr('fill', d=> d.data.type === 'terminal' ? 'var(--amarillo-unah)' : 'var(--azul-unah)')
+    .attr('stroke','#fff').attr('stroke-width',2.5)
+    .transition().duration(400).delay((_,i)=>i*35)
+    .attr('r', d=> d.data.type === 'terminal' ? 7 : 10);
+  
+  // Animar etiquetas de nodos
+  nd.append('text')
+    .attr('dx', d=> d.children ? -16 : 16).attr('dy',5)
+    .attr('text-anchor', d=> d.children ? 'end' : 'start')
+    .attr('font-family','Futura Std, Century Gothic, sans-serif')
+    .attr('font-size',12).attr('font-weight','500')
+    .attr('fill','#1A2C3E')
+    .text(d=>d.data.name)
+    .style('opacity',0)
+    .transition().duration(400).delay((_,i)=>i*35+200).style('opacity',1);
+}
+
+/**
+ * setZoom(v)
+ * Ajusta el nivel de zoom del árbol
+ * @param {number} v - Valor del zoom (40-220)
+ */
+function setZoom(v) {
+  document.getElementById('zval').textContent = v+'%';
+  if (!_svg) return;
+  _svg.transition().duration(200).call(_zb.scaleTo, v/100);
+}
+
+/**
+ * resetZoom()
+ * Resetea el zoom del árbol a 100% y posición inicial
+ */
+function resetZoom() {
+  document.getElementById('zrange').value = 100;
+  document.getElementById('zval').textContent = '100%';
+  if (!_svg) return;
+  _svg.transition().duration(300).call(_zb.transform, d3.zoomIdentity.translate(70,50));
+}
+
+// Atajo de teclado: Ctrl+Enter para procesar
+entrada.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') procesar(); });
+setStatus("Backend listo. Esperando entrada.", false);
+
+// ─────────────────────────────────────────────────────────────
+// PESTAÑAS Y CARGA DE ARCHIVOS: Gestión de tabs y FileReader
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * switchTab(tabId)
+ * Cambia entre pestaña manual y pestaña de archivo
+ * También habilita/deshabilita los ejemplos según la pestaña
+ * 
+ * @param {string} tabId - 'manual' o 'file'
+ */
+function switchTab(tabId) {
+  // Resetear botones y vistas
+  document.getElementById('btn-tab-manual').classList.remove('active');
+  document.getElementById('btn-tab-file').classList.remove('active');
+  document.getElementById('tab-manual').classList.remove('active');
+  document.getElementById('tab-file').classList.remove('active');
+
+  const cardEjemplos = document.getElementById('card-ejemplos');
+
+  // Activar la pestaña correcta
+  if (tabId === 'manual') {
+    document.getElementById('btn-tab-manual').classList.add('active');
+    document.getElementById('tab-manual').classList.add('active');
+    cardEjemplos.classList.remove('disabled-card'); // Habilitar ejemplos
+  } else {
+    document.getElementById('btn-tab-file').classList.add('active');
+    document.getElementById('tab-file').classList.add('active');
+    cardEjemplos.classList.add('disabled-card'); // Deshabilitar ejemplos
+  }
+}
+
+/**
+ * FileReader: Lee archivos .txt seleccionados por el usuario
+ * Pega el contenido en el textarea y cambia a la pestaña manual
+ */
+document.getElementById('archivoTxt').addEventListener('change', function(e) {
+  const archivo = e.target.files[0];
+  if (!archivo) return;
+  
+  const lector = new FileReader();
+  lector.onload = function(evento) {
+    // Pegar el texto en el textarea
+    document.getElementById('entrada').value = evento.target.result;
+    
+    // Disparar evento para actualizar números de línea
+    document.getElementById('entrada').dispatchEvent(new Event('input'));
+    
+    // Volver a la pestaña manual
+    switchTab('manual');
+    
+    setStatus(`Archivo cargado: ${archivo.name}`, false);
+  };
+  lector.readAsText(archivo);
+  
+  // Limpiar input para permitir recargar el mismo archivo
+  e.target.value = ''; 
+});
 </script>
 </body>
 </html>
