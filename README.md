@@ -208,16 +208,12 @@ Aplicación Flask que proporciona:
   - Recibe JSON: `{"entrada": "525Romano$"}`
   - Retorna JSON: `{"ok": true, "tree": {...}, "resultado": [...]}`
 
-**Líneas:** 88 | **Estado:** Documentado ✅
-
 ### 🐍 `conversion/grammar.py`
 Define la gramática EBNF del lenguaje usando Lark:
 - Reglas gramaticales (minúsculas): `start`, `programa`, `instruccion`, etc.
 - Tokens (MAYÚSCULAS): `DIGITO`, `HEX`, `OCT`, `BIN`, `ROM`, `ALT`, `ALE`, `FIN`
 - Símbolos especiales: `?` (inline), `+` (una o más), `|` (disyunción)
 - Espacios ignorados: `%import common.WS`, `%ignore WS`
-
-**Líneas:** 300 | **Estado:** Completamente documentado ✅
 
 ### 🐍 `conversion/transformer_utils.py`
 Implementa la lógica de transformación:
@@ -229,16 +225,12 @@ Implementa la lógica de transformación:
   - `conversion()` - Realiza conversiones numérica
   - `instruccion()` - Procesa instrucciones
 
-**Líneas:** 225 | **Estado:** Completamente documentado ✅
-
 ### 🐍 `conversion/logica_inicial.py`
 Interfaz CLI para testing:
 - **`dec_a_romano(n)`** - Igual que en transformer_utils.py
 - **`TransformadorNumeros`** - Transformer para CLI
 - **`cuadro_lexico_detallado(entrada)`** - Muestra análisis léxico
 - **`ejecutar_traductor()`** - Loop principal interactivo
-
-**Líneas:** 254 | **Estado:** Completamente documentado ✅
 
 ### 🌐 `templates/index.html`
 Interfaz web moderna y responsiva:
@@ -249,8 +241,6 @@ Interfaz web moderna y responsiva:
   - Visualización de árboles (D3.js)
   - Interactividad (tabs, modales, acordeones)
   - Análisis léxico en tabla
-
-**Líneas:** 1,793 | **Estado:** Completamente documentado ✅
 
 ---
 
