@@ -1,15 +1,15 @@
-# 🔢 Convertidor de Números - Grupo 5 UNAH
+# Convertidor de Números - Grupo 5 UNAH
 
 > **Proyecto Final - Asignatura: Diseño de Compiladores**
 > Universidad Nacional Autónoma de Honduras | Facultad de Ingeniería en Sistemas
 
 ---
 
-## 📋 Descripción del Proyecto
+## Descripción del Proyecto
 
 Compilador/traductor que convierte números enteros en **base decimal (base 10)** a diferentes sistemas numéricos. El proyecto implementa un **parser Lark** con análisis léxico y sintáctico completo, generando un árbol sintáctico abstracto (AST) que es transformado para obtener conversiones precisas.
 
-### 🎯 Objetivo
+### Objetivo
 
 Demostrar la implementación de un compilador simple pero completo, aplicando conceptos de:
 - **Análisis Léxico:** Identificación de tokens
@@ -18,7 +18,7 @@ Demostrar la implementación de un compilador simple pero completo, aplicando co
 
 ---
 
-## 📊 Sistemas de Conversión Soportados
+## Sistemas de Conversión Soportados
 
 | Sistema | Base | Rango | Ejemplo (525) |
 |---------|------|-------|---------------|
@@ -31,30 +31,30 @@ Demostrar la implementación de un compilador simple pero completo, aplicando co
 
 ---
 
-## 🏗️ Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 Compiladores-Grupo-5-Proyecto-Final/
 │
-├── 📄 README.md                     # Este archivo
-├── 📄 .gitignore                    # Configuración de Git
+├── README.md                     # Este archivo
+├── .gitignore                    # Configuración de Git
 │
-├── 🐍 app.py                        # Aplicación Flask (servidor web)
+├── app.py                        # Aplicación Flask (servidor web)
 │
-├── 📁 conversion/
+├── conversion/
 │   ├── grammar.py                   # Definición de la gramática Lark
 │   ├── transformer_utils.py         # Transformer y utilidades
 │   └── logica_inicial.py            # Interfaz CLI (línea de comandos)
 │
-├── 📁 templates/
+├── templates/
 │   └── index.html                   # Interfaz web (HTML/CSS/JavaScript)
 │
-└── 📁 python/                       # Reservado (vacío)
+└── python/                       # Reservado (vacío)
 ```
 
 ---
 
-## 🛠️ Requisitos Previos
+## Requisitos Previos
 
 ### Dependencias
 ```
@@ -76,7 +76,7 @@ pip install flask lark
 
 ---
 
-## 🚀 Cómo Ejecutar
+## Cómo Ejecutar
 
 ### Opción 1: Interfaz Web (Recomendado)
 
@@ -86,15 +86,15 @@ python app.py
 ```
 
 Luego accede a:
-- **URL:** http://localhost:5000
-- **Características:**
-  - ✅ Entrada manual de conversiones
-  - ✅ Carga de archivos .txt
-  - ✅ Visualización de árbol sintáctico con D3.js
-  - ✅ Tabla de análisis léxico
-  - ✅ Procedimiento paso a paso
-  - ✅ Ejemplos predefinidos
-  - ✅ Control de zoom interactivo
+- URL: http://localhost:5000
+- Características:
+  - Entrada manual de conversiones
+  - Carga de archivos .txt
+  - Visualización de árbol sintáctico con D3.js
+  - Tabla de análisis léxico
+  - Procedimiento paso a paso
+  - Ejemplos predefinidos
+  - Control de zoom interactivo
 
 ### Opción 2: Interfaz de Línea de Comandos (CLI)
 
@@ -122,7 +122,7 @@ SALIDA SINTÁCTICA (OPERACIÓN):
 
 ---
 
-## 📝 Formato de Entrada
+## Formato de Entrada
 
 ### Sintaxis
 ```
@@ -152,7 +152,7 @@ ABC Binario$     # Entrada no es numérica
 
 ---
 
-## 🔍 Flujo de Procesamiento
+## Flujo de Procesamiento
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -199,23 +199,23 @@ ABC Binario$     # Entrada no es numérica
 
 ---
 
-## 📁 Descripción de Archivos
+## Descripción de Archivos
 
-### 🐍 `app.py`
+### `app.py`
 Aplicación Flask que proporciona:
-- **GET `/`** - Renderiza la interfaz web (index.html)
-- **POST `/parse`** - Endpoint que procesa conversiones
+- GET `/` - Renderiza la interfaz web (index.html)
+- POST `/parse` - Endpoint que procesa conversiones
   - Recibe JSON: `{"entrada": "525Romano$"}`
   - Retorna JSON: `{"ok": true, "tree": {...}, "resultado": [...]}`
 
-### 🐍 `conversion/grammar.py`
+### `conversion/grammar.py`
 Define la gramática EBNF del lenguaje usando Lark:
 - Reglas gramaticales (minúsculas): `start`, `programa`, `instruccion`, etc.
 - Tokens (MAYÚSCULAS): `DIGITO`, `HEX`, `OCT`, `BIN`, `ROM`, `ALT`, `ALE`, `FIN`
 - Símbolos especiales: `?` (inline), `+` (una o más), `|` (disyunción)
 - Espacios ignorados: `%import common.WS`, `%ignore WS`
 
-### 🐍 `conversion/transformer_utils.py`
+### `conversion/transformer_utils.py`
 Implementa la lógica de transformación:
 - **`dec_a_romano(n)`** - Convierte decimal a numerales romanos
 - **`tree_to_dict(tree)`** - Convierte AST a diccionario JSON
@@ -225,14 +225,14 @@ Implementa la lógica de transformación:
   - `conversion()` - Realiza conversiones numérica
   - `instruccion()` - Procesa instrucciones
 
-### 🐍 `conversion/logica_inicial.py`
+### `conversion/logica_inicial.py`
 Interfaz CLI para testing:
 - **`dec_a_romano(n)`** - Igual que en transformer_utils.py
 - **`TransformadorNumeros`** - Transformer para CLI
 - **`cuadro_lexico_detallado(entrada)`** - Muestra análisis léxico
 - **`ejecutar_traductor()`** - Loop principal interactivo
 
-### 🌐 `templates/index.html`
+### `templates/index.html`
 Interfaz web moderna y responsiva:
 - **HTML:** Estructura de dos paneles (entrada + árbol)
 - **CSS:** Diseño con variables de marca UNAH
@@ -244,7 +244,7 @@ Interfaz web moderna y responsiva:
 
 ---
 
-## 🧮 Ejemplos de Uso
+## Ejemplos de Uso
 
 ### Ejemplo 1: Romano
 
@@ -298,7 +298,7 @@ Salida 3: ALT-3675 (eligió Alternativo)
 
 ---
 
-## 🧩 Gramática EBNF
+## Gramática EBNF
 
 ```ebnf
 ?start: programa
@@ -342,7 +342,7 @@ fin: FIN
 
 ---
 
-## 🔧 Análisis Léxico (Tokenización)
+## Análisis Léxico (Tokenización)
 
 El análisis léxico identifica los siguientes componentes:
 
@@ -360,7 +360,7 @@ El análisis léxico identifica los siguientes componentes:
 
 ---
 
-## 📊 Árbol Sintáctico Abstracto (AST)
+## Árbol Sintáctico Abstracto (AST)
 
 ### Ejemplo: "525Romano$"
 
@@ -392,7 +392,7 @@ programa
 
 ---
 
-## 👥 Integrantes del Grupo 5
+## Integrantes del Grupo 5
 
 | Carné | Nombre |
 |-------|--------|
@@ -404,33 +404,33 @@ programa
 
 ---
 
-## 📚 Documentación Adicional
+## Documentación Adicional
 
-- **`conversion/grammar.py`** - Documentación exhaustiva de la gramática
+- `conversion/grammar.py` - Documentación exhaustiva de la gramática
   - 6 niveles explicados
   - Tabla de tokens
   - Ejemplos de AST
   - Casos de uso
 
-- **Archivos Python** - Comentarios inline detallados
+- Archivos Python - Comentarios inline detallados
   - Docstrings completos
   - Explicación de algoritmos
   - Ejemplos de uso
 
 ---
 
-## 📖 Referencias
+## Referencias
 
 ### Herramientas Utilizadas
 
-- **Lark** - Parser generator (https://lark-parser.readthedocs.io/)
-- **Flask** - Web framework (https://flask.palletsprojects.com/)
-- **D3.js** - Visualización de árboles (https://d3js.org/)
-- **Python 3.8+** - Lenguaje de programación
+- Lark - Parser generator (https://lark-parser.readthedocs.io/)
+- Flask - Web framework (https://flask.palletsprojects.com/)
+- D3.js - Visualización de árboles (https://d3js.org/)
+- Python 3.8+ - Lenguaje de programación
 
 ---
 
-## 📝 Licencia
+## Licencia
 
 Este proyecto es de uso educativo exclusivamente.
 
