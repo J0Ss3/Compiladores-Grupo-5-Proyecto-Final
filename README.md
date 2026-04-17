@@ -48,8 +48,7 @@ Compiladores-Grupo-5-Proyecto-Final/
 │
 ├── templates/
 │   └── index.html                   # Interfaz web (HTML/CSS/JavaScript)
-│
-└── python/                       # Reservado (vacío)
+
 ```
 
 ---
