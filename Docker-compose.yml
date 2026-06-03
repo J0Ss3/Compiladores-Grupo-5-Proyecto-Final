@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  compiladores:
+    build: .
+    container_name: compiladores-grupo5
+    ports:
+      - "5000:5000"
+    volumes:
+      # Monta el código local dentro del contenedor para hot-reload
+      - .:/app
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    restart: unless-stopped
